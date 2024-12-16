@@ -19,14 +19,27 @@ export const ChatBox = styled.div`
 `;
 
 export const MemberList = styled.div`
-  width: 25%;
-  background-color: #2f3640;
+  display: flex;
+  width: 20%;
+  background-color: #5079defc;
   color: white;
   overflow-y: auto;
   padding: 10px;
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    justify-content: flex-start;
+    flex-direction: column;
+  }
 `;
 
 export const Member = styled.li`
+  display: flex;
+
   padding: 10px;
   margin-bottom: 5px;
   border-radius: 4px;
@@ -34,7 +47,7 @@ export const Member = styled.li`
   background-color: ${({ active }) => (active ? "#44bd32" : "transparent")};
   font-weight: ${({ newMessage }) => (newMessage ? "bold" : "normal")};
   &:hover {
-    background-color: #44bd32;
+    background-color: #2b41e2;
   }
 `;
 
@@ -104,7 +117,7 @@ export const SendButton = styled.button`
   cursor: pointer;
   font-size: 16px;
   &:hover {
-    background-color: #3d9946;
+    background-color: #44bd32f0;
   }
 `;
 
