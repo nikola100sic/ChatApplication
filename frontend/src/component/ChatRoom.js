@@ -13,11 +13,13 @@ import {
   MemberList,
   Message,
   MessageData,
+  NotificationBadge,
   Register,
   RegisterButton,
   SendButton,
   SendMessage,
 } from "./ChatRoom.styled";
+import { toast } from "react-toastify";
 
 var stompClient = null;
 
@@ -56,6 +58,7 @@ const ChatRoom = () => {
   const userJoin = () => {
     var chatMessage = {
       senderName: userData.username,
+      message: `${userData.username} has joined the chat!`,
       status: "JOIN",
     };
     stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
@@ -69,27 +72,55 @@ const ChatRoom = () => {
           privateChats.set(payloadData.senderName, []);
           setPrivateChats(new Map(privateChats));
         }
+        publicChats.push({
+          senderName: "System",
+          message: payloadData.message,
+          status: "SYSTEM",
+        });
+        setPublicChats([...publicChats]);
         break;
       case "MESSAGE":
-        publicChats.push(payloadData);
-        setPublicChats([...publicChats]);
+        if (tab !== "CHATROOM") {
+          publicChats.push(payloadData);
+          setPublicChats([...publicChats]);
+        } else {
+          publicChats.push(payloadData);
+          setPublicChats([...publicChats]);
+
+          if (tab !== "CHATROOM") {
+            setNewMessages((prevMessages) => {
+              const updatedMessages = new Map(prevMessages);
+              const count = updatedMessages.get("CHATROOM") || 0;
+              updatedMessages.set("CHATROOM", count + 1);
+              return updatedMessages;
+            });
+          }
+        }
         break;
     }
   };
 
   const onPrivateMessage = (payload) => {
     var payloadData = JSON.parse(payload.body);
-    if (privateChats.get(payloadData.senderName)) {
-      privateChats.get(payloadData.senderName).push(payloadData);
+
+    const senderName = payloadData.senderName;
+
+    if (privateChats.get(senderName)) {
+      privateChats.get(senderName).push(payloadData);
       setPrivateChats(new Map(privateChats));
     } else {
-      let list = [];
-      list.push(payloadData);
-      privateChats.set(payloadData.senderName, list);
+      let list = [payloadData];
+      privateChats.set(senderName, list);
       setPrivateChats(new Map(privateChats));
     }
-    if (tab !== payloadData.senderName) {
-      setNewMessages(new Map(newMessages.set(payloadData.senderName, true)));
+
+    if (tab !== senderName) {
+      setNewMessages((prevMessages) => {
+        const updatedMessages = new Map(prevMessages);
+        const count = updatedMessages.get(senderName) || 0;
+        updatedMessages.set(senderName, count + 1);
+        return updatedMessages;
+      });
     }
   };
 
@@ -103,6 +134,10 @@ const ChatRoom = () => {
   };
 
   const sendValue = () => {
+    if (!userData.message.trim()) {
+      toast.warning("Please enter text");
+      return;
+    }
     if (stompClient) {
       var chatMessage = {
         senderName: userData.username,
@@ -115,6 +150,10 @@ const ChatRoom = () => {
   };
 
   const sendPrivateValue = () => {
+    if (!userData.message.trim()) {
+      toast.warning("Please enter text");
+      return;
+    }
     if (stompClient) {
       var chatMessage = {
         senderName: userData.username,
@@ -139,20 +178,11 @@ const ChatRoom = () => {
   };
 
   const registerUser = () => {
+    if (!userData.username.trim()) {
+      toast.warning("Please enter your username!");
+      return;
+    }
     connect();
-  };
-
-  const Member = ({ active, onClick, children, newMessage }) => {
-    return (
-      <div
-        className={`member ${active ? "active" : ""} ${
-          newMessage ? "new-message" : ""
-        }`}
-        onClick={onClick}
-      >
-        {children}
-      </div>
-    );
   };
 
   return (
@@ -166,15 +196,29 @@ const ChatRoom = () => {
                 active={tab === "CHATROOM"}
               >
                 Public chatroom
+                {newMessages.get("CHATROOM") > 0 && (
+                  <NotificationBadge>
+                    {newMessages.get("CHATROOM")}
+                  </NotificationBadge>
+                )}
               </Member>
               {[...privateChats.keys()].map((name, index) => (
                 <Member
                   key={index}
-                  onClick={() => setTab(name)}
+                  onClick={() => {
+                    setTab(name);
+                    if (newMessages.has(name)) {
+                      setNewMessages(new Map(newMessages.set(name, 0)));
+                    }
+                  }}
                   active={tab === name}
-                  newMessage={newMessages.has(name) && newMessages.get(name)}
                 >
                   {name}
+                  {newMessages.get(name) > 0 && (
+                    <NotificationBadge>
+                      {newMessages.get(name)}
+                    </NotificationBadge>
+                  )}
                 </Member>
               ))}
             </ul>
