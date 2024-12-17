@@ -5,7 +5,7 @@ export const ChatRoomContainer = styled.div`
   flex-direction: column;
   align-items: center;
   height: 100vh;
-  background-color: #f4f4f9;
+  margin-top: 15px;
 `;
 
 export const ChatBox = styled.div`
@@ -20,26 +20,19 @@ export const ChatBox = styled.div`
 
 export const MemberList = styled.div`
   display: flex;
-  width: 20%;
-  background-color: #5079defc;
+  background-color: #0d8df2;
   color: white;
-  overflow-y: auto;
   padding: 10px;
+  flex-wrap: wrap;
+
   ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    list-style: none;
     padding: 0;
     margin: 0;
-    list-style-type: none;
-    justify-content: flex-start;
-    flex-direction: column;
   }
 `;
 
 export const Member = styled.li`
-  display: flex;
-
   padding: 10px;
   margin-bottom: 5px;
   border-radius: 4px;
@@ -47,7 +40,7 @@ export const Member = styled.li`
   background-color: ${({ active }) => (active ? "#44bd32" : "transparent")};
   font-weight: ${({ newMessage }) => (newMessage ? "bold" : "normal")};
   &:hover {
-    background-color: #2b41e2;
+    background-color: #44bd32;
   }
 `;
 
@@ -117,7 +110,7 @@ export const SendButton = styled.button`
   cursor: pointer;
   font-size: 16px;
   &:hover {
-    background-color: #44bd32f0;
+    background-color: #3d9946;
   }
 `;
 
@@ -147,4 +140,18 @@ export const RegisterButton = styled.button`
   &:hover {
     background-color: #3d9946;
   }
+`;
+
+export const NotificationBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e84118;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 10px;
 `;
